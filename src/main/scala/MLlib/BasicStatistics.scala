@@ -99,9 +99,17 @@ object BasicStatistics{
 
   def hypothesisTestingTest(): Unit ={
     println("假设检验")
-    val dv: Vector = Vectors.dense(1.0, 0.0, 3.0)
-    //    皮尔森的卡方检验
+    val dv: Vector = Vectors.dense(1,2,3,4,5,6)
+
+    var conf = new SparkConf()
+    conf.setMaster("local[2]").setAppName("MLTest")
+    var sc = new SparkContext(conf)
+    // 数据文件中下标是从1开始的，不是从0开始 如：1 1:4 2:7
+//    val examples = MLUtils.loadLibSVMFile(sc,"data/sparseData")
+    //    卡方检验  1.入参为向量，则是拟合度检验  2 入参为矩阵，则是独立性检验
     val goodnessOfFitTestResult  = Statistics.chiSqTest(dv)
+//    goodnessOfFitTestResult
     println(goodnessOfFitTestResult )
+
   }
 }
