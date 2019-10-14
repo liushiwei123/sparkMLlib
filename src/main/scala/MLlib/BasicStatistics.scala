@@ -99,7 +99,7 @@ object BasicStatistics{
 
   def hypothesisTestingTest(): Unit ={
     println("假设检验")
-    val dv: Vector = Vectors.dense(1,2,3,4,5,6)
+    val dv: Vector = Vectors.dense(1,2,3,4,5,6,34,23,343,5,6,67,8,86,5,4,3)
 
     var conf = new SparkConf()
     conf.setMaster("local[2]").setAppName("MLTest")
@@ -107,7 +107,10 @@ object BasicStatistics{
     // 数据文件中下标是从1开始的，不是从0开始 如：1 1:4 2:7
 //    val examples = MLUtils.loadLibSVMFile(sc,"data/sparseData")
     //    卡方检验  1.入参为向量，则是拟合度检验  2 入参为矩阵，则是独立性检验
+//    情况一 ：入参为向量，则是拟合度检验
+//            statistic值计算逻辑：sum(((Xi - X均值)*(Xi - X均值))/X均值)
     val goodnessOfFitTestResult  = Statistics.chiSqTest(dv)
+
 //    goodnessOfFitTestResult
     println(goodnessOfFitTestResult )
 
