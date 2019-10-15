@@ -48,12 +48,12 @@ object DataTypesLabeledPoint{
     val neg = LabeledPoint(0,Vectors.sparse(3,Array(0,2),Array(1,1)))
 // 解析数据
     var conf = new SparkConf()
-    conf.setMaster("local[2]").setAppName("MLTest")
+    conf.setMaster("local").setAppName("MLTest")
     var sc = new SparkContext(conf)
 // 数据文件中下标是从1开始的，不是从0开始 如：1 1:4 2:7
     val examples = MLUtils.loadLibSVMFile(sc,"data/sparseData")
     examples.collect().foreach(println(_))
-//    println(examples)
+    println(examples)
   }
 }
 // 本地矩阵

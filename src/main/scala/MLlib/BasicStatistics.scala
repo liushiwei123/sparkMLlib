@@ -1,7 +1,8 @@
 package MLib
 
+import Utils.SparkUtils
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.mllib.linalg.{Vector, Vectors}
+import org.apache.spark.mllib.linalg.{DenseMatrix, Matrices, Vector, Vectors}
 import org.apache.spark.mllib.stat.Statistics
 import org.apache.spark.mllib.util.MLUtils
 
@@ -16,8 +17,15 @@ object BasicStatistics{
   def main(args: Array[String]): Unit = {
     //    summaryStatistics()
     //    correlationsTest()
+//    分层抽样
     //    stratifiedSamplingTest()
-    hypothesisTestingTest()
+//    hypothesisTestingTest()
+//    卡方检验之独立性检验
+//    hypothesisTestingTestIndependence()
+//    卡方检验之拟合度检验
+    hypothesisTestingTestGoodnessOfFit()
+//    假设检验特征和标签独立性检验
+//    hypothesisTestingTestIndependenceLabelFeature()
   }
   def summaryStatistics(): Unit ={
     var conf = new SparkConf()
@@ -106,13 +114,42 @@ object BasicStatistics{
     var sc = new SparkContext(conf)
     // 数据文件中下标是从1开始的，不是从0开始 如：1 1:4 2:7
 //    val examples = MLUtils.loadLibSVMFile(sc,"data/sparseData")
-    //    卡方检验  1.入参为向量，则是拟合度检验  2 入参为矩阵，则是独立性检验
-//    情况一 ：入参为向量，则是拟合度检验
-//            statistic值计算逻辑：sum(((Xi - X均值)*(Xi - X均值))/X均值)
     val goodnessOfFitTestResult  = Statistics.chiSqTest(dv)
 
 //    goodnessOfFitTestResult
     println(goodnessOfFitTestResult )
 
   }
+
+  /**
+    * 情况一：入参为向量
+    * 卡方检验之拟合度检验
+    */
+  def hypothesisTestingTestGoodnessOfFit(): Unit ={
+//    观察值
+    val obverse = Vectors.dense(Array(1.0,2,3,4,5,6,7,8,9,10,11,12,13,14))
+//    期望值
+    val expects =  Vectors.dense(Array(1.0,2,3,4,5,6,7,8,9,10,11,12,13,14))
+    val result2 = Statistics.chiSqTest(obverse,expects)
+    println(result2)
+  }
+  /**
+    * 情况二：入参为矩阵，
+    * 假设检验卡方检验之独立性检验
+    */
+  def hypothesisTestingTestIndependence(): Unit ={
+    val dm = Matrices.dense(2,2,Array(458.88,497.12,21.12,22.88))
+    val result1 = Statistics.chiSqTest(dm)
+    println(result1)
+  }
+
+  /**
+    * 情况三（其实也是情况二的特殊案例）：入参为(feature, label) pairs
+    * 检验特征和标签之间的独立性
+    */
+  def hypothesisTestingTestIndependenceLabelFeature(): Unit ={
+    val dataWithLabelRDD = MLUtils.loadLibSVMFile(SparkUtils.getLocalSC("HypothesisTest"),"data/dataWithLabel")
+    dataWithLabelRDD.foreach(println(_))
+  }
+
 }
