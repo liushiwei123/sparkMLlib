@@ -5,6 +5,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.mllib.linalg.{DenseMatrix, Matrices, Vector, Vectors}
 import org.apache.spark.mllib.stat.Statistics
 import org.apache.spark.mllib.util.MLUtils
+import org.apache.spark.rdd.RDD
 
 /**
   * Created by 725841 on 2019/10/11.
@@ -18,14 +19,16 @@ object BasicStatistics{
     //    summaryStatistics()
     //    correlationsTest()
 //    分层抽样
-    //    stratifiedSamplingTest()
+//        stratifiedSamplingTest()
 //    hypothesisTestingTest()
 //    卡方检验之独立性检验
 //    hypothesisTestingTestIndependence()
 //    卡方检验之拟合度检验
-    hypothesisTestingTestGoodnessOfFit()
+//    hypothesisTestingTestGoodnessOfFit()
 //    假设检验特征和标签独立性检验
 //    hypothesisTestingTestIndependenceLabelFeature()
+//    KS单边检验
+    oneSampleKS()
   }
   def summaryStatistics(): Unit ={
     var conf = new SparkConf()
@@ -126,11 +129,15 @@ object BasicStatistics{
     * 卡方检验之拟合度检验
     */
   def hypothesisTestingTestGoodnessOfFit(): Unit ={
+    val doubleArr = new Array[Double](21)
+    for (i <- 1 to 20 ){
+      doubleArr(i) = Math.log(i)
+    }
 //    观察值
-    val obverse = Vectors.dense(Array(1.0,2,3,4,5,6,7,8,9,10,11,12,13,14))
+    val obverse = Vectors.dense(doubleArr)
 //    期望值
-    val expects =  Vectors.dense(Array(1.0,2,3,4,5,6,7,8,9,10,11,12,13,14))
-    val result2 = Statistics.chiSqTest(obverse,expects)
+//    val expects =  Vectors.dense(Array(5.7,3.2,4.2,11.0,9.7,6.9,3.6,4.8,5.6,8.4))
+    val result2 = Statistics.chiSqTest(obverse)
     println(result2)
   }
   /**
@@ -152,4 +159,27 @@ object BasicStatistics{
     dataWithLabelRDD.foreach(println(_))
   }
 
+  /**
+    * ks单边检验
+    */
+  def oneSampleKS(): Unit ={
+    val sc =SparkUtils.getLocalSC("oneSample")
+    val oneSampleData =sc.textFile("data/oneSampleKSData").map(_.toDouble)
+//    检验是否符合0-1正态分布（标准正态分布）
+    val testResult = Statistics.kolmogorovSmirnovTest(oneSampleData,"norm",0,1)
+    println(testResult)
+
+//    检验是否符合自定义函数分布
+    val myCDF= ( x:Double) => Math.log(x)
+    val doubleArr = new Array[Double](10000)
+    var value= 10.0
+    for (i <- 1 to 9999 ){
+      value = value + 0.0001
+      doubleArr(i) = Math.log(value)
+    }
+//    println(doubleArr.toList.toString())
+    val doubleRdd = sc.makeRDD(doubleArr)
+    val testResult2 = Statistics.kolmogorovSmirnovTest(doubleRdd, myCDF)
+    println("testResult2:"+testResult2)
+  }
 }

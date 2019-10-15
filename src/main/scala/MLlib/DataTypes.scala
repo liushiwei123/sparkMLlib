@@ -1,6 +1,5 @@
 package MLlib
 
-import antlr.collections.impl.IndexedVector
 import org.apache.spark.mllib.linalg.distributed._
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.mllib.linalg.{Matrices, Vector, Vectors}
@@ -52,7 +51,7 @@ object DataTypesLabeledPoint{
     var sc = new SparkContext(conf)
 // 数据文件中下标是从1开始的，不是从0开始 如：1 1:4 2:7
     val examples = MLUtils.loadLibSVMFile(sc,"data/sparseData")
-    examples.collect().foreach(println(_))
+
     println(examples)
   }
 }
